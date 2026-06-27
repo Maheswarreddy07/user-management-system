@@ -1,159 +1,191 @@
+# User Management System
 
-User Management System
+A full-stack CRUD application for managing user records. Built with a React frontend and an Express + MySQL backend — supports creating, reading, updating, and deleting users with real-time search and input validation.
 
-A full-stack CRUD web application for managing user records. Built with a React frontend and an Express + MySQL backend, it supports creating, reading, updating, and deleting users with real-time search and form validation.
+---
 
+## Tech Stack
 
-Tech Stack
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite 8, Tailwind CSS 4, Axios |
+| Backend | Node.js, Express 5 |
+| Database | MySQL (via `mysql2`) |
+| Dev Tools | `nodeman`, `oxlint`, PostCSS, Autoprefixer |
 
-LayerTechnologyFrontendReact 19, Vite 8, Tailwind CSS 4, AxiosBackendNode.js, Express 5DatabaseMySQL (via mysql2)Dev Toolsnodeman, oxlint, PostCSS, Autoprefixer
+---
 
-'''
-Project Structure
+## Project Structure
 
+```
 user-management-system/
-├── schema.sql              # Database schema
+├── schema.sql                    # Database initialization script
 ├── backend/
-│   ├── server.js           # Express app entry point
-│   ├── .env                # Environment variables (not for production)
+│   ├── server.js                 # Express app entry point
+│   ├── .env                      # Environment variables
 │   ├── config/
-│   │   └── db.js           # MySQL connection pool
+│   │   └── db.js                 # MySQL connection pool
 │   ├── controllers/
-│   │   └── userController.js  # Business logic for all CRUD operations
+│   │   └── userController.js     # CRUD business logic
 │   └── routes/
-│       └── userRoutes.js   # REST route definitions
+│       └── userRoutes.js         # REST API route definitions
 └── frontend/
     ├── index.html
     ├── vite.config.js
     ├── tailwind.config.js
     └── src/
-        ├── App.jsx             # Root component, state management, API calls
+        ├── App.jsx               # Root component — state & API calls
+        ├── main.jsx              # React DOM mount
         └── components/
-            ├── UserForm.jsx    # Add / Edit user form with validation
-            ├── UserList.jsx    # Tabular display of all users
-            └── SearchBar.jsx   # Real-time search input
+            ├── UserForm.jsx      # Add / Edit form with validation
+            ├── UserList.jsx      # User records table
+            └── SearchBar.jsx     # Real-time search input
+```
 
+---
 
-Features
+## Features
 
+- **Create** new users with all required fields validated
+- **Read** all users in a table sorted newest-first
+- **Update** user details via an inline edit form
+- **Delete** users with a confirmation prompt
+- **Real-time search** by name or email
+- **Dual-layer validation** — on both the client and server
+- **Duplicate email detection** before insert and update
+- **Auto-dismiss alerts** for success and error feedback (4 seconds)
 
-Create new user records with all required fields
-Read and display all users in a sortable table (newest first)
-Update existing user details via inline edit form
-Delete users with a confirmation prompt
-Real-time search by name or email (debounced via useEffect)
-Input validation on both client and server sides
-Duplicate email detection before insert and update
-Success/error alerts with auto-dismiss after 4 seconds
+---
 
+## Database Schema
 
+```sql
+CREATE DATABASE IF NOT EXISTS user_management;
+USE user_management;
 
-Database Schema
-
-sqlCREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id             INT AUTO_INCREMENT PRIMARY KEY,
-    full_name      VARCHAR(100) NOT NULL,
-    email          VARCHAR(100) NOT NULL UNIQUE,
-    mobile_number  VARCHAR(10)  NOT NULL,
+    full_name      VARCHAR(100)                    NOT NULL,
+    email          VARCHAR(100)                    NOT NULL UNIQUE,
+    mobile_number  VARCHAR(10)                     NOT NULL,
     gender         ENUM('Male', 'Female', 'Other') NOT NULL,
-    city           VARCHAR(100) NOT NULL,
+    city           VARCHAR(100)                    NOT NULL,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+```
 
+---
 
-API Endpoints
+## API Reference
 
-Base URL: http://localhost:5000
+**Base URL:** `http://localhost:5000`
 
-MethodEndpointDescriptionGET/usersFetch all users (supports ?search= query param)GET/users/:idFetch a single user by IDPOST/usersCreate a new userPUT/users/:idUpdate an existing userDELETE/users/:idDelete a user
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/users` | Fetch all users. Supports `?search=` query param |
+| `GET` | `/users/:id` | Fetch a single user by ID |
+| `POST` | `/users` | Create a new user |
+| `PUT` | `/users/:id` | Update an existing user |
+| `DELETE` | `/users/:id` | Delete a user |
 
-Request Body (POST / PUT)
+### Request Body (POST / PUT)
 
-json{
-  "full_name": "Maheswar Reddy",
-  "email": "maheswar@example.com",
+```json
+{
+  "full_name": "John Doe",
+  "email": "john@example.com",
   "mobile_number": "9876543210",
   "gender": "Male",
-  "city": "Visakhapatnam"
+  "city": "Hyderabad"
 }
+```
 
-Validation Rules
+### Validation Rules
 
+- All five fields are required
+- `email` must be a valid email format
+- `mobile_number` must be exactly 10 digits
+- `email` must be unique across all records
 
-All five fields are required
-email must match a valid email format
-mobile_number must be exactly 10 digits
-email must be unique across all users
+---
 
+## Getting Started
 
+### Prerequisites
 
-Getting Started
+- Node.js v18+
+- MySQL v8+
 
-Prerequisites
+### 1. Database Setup
 
+```bash
+mysql -u root -p < schema.sql
+```
 
-Node.js (v18+)
-MySQL (v8+)
+Creates the `user_management` database and the `users` table.
 
+### 2. Backend
 
-1. Database Setup
-
-bashmysql -u root -p < schema.sql
-
-This creates the user_management database and the users table.
-
-2. Backend Setup
-
-bashcd backend
+```bash
+cd backend
 npm install
+```
 
-Create a .env file (or edit the existing one) with your MySQL credentials:
+Create a `.env` file inside `backend/`:
 
-envPORT=5000
+```env
+PORT=5000
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password_here
 DB_NAME=user_management
+```
 
+Start the server:
 
-Note: The .env file is committed to this repo with example credentials. Replace DB_PASSWORD with your actual MySQL password before running.
-
-
-
-Start the backend:
-
-bash# Development (with auto-restart via nodeman)
+```bash
+# With auto-restart on file changes
 npx nodeman server.js
 
-# Or plain Node
+# Standard
 node server.js
+```
 
-The server runs at http://localhost:5000.
+Server runs at `http://localhost:5000`.
 
-3. Frontend Setup
+### 3. Frontend
 
-bashcd frontend
+```bash
+cd frontend
 npm install
 npm run dev
+```
 
-The frontend runs at http://localhost:5173 and communicates with the backend at http://localhost:5000.
+App runs at `http://localhost:5173`.
 
+---
 
-Environment Variables
+## Environment Variables
 
-VariableDefaultDescriptionPORT5000Port for the Express serverDB_HOSTlocalhostMySQL hostDB_USERrootMySQL usernameDB_PASSWORD(required)MySQL passwordDB_NAMEuser_managementMySQL database name
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `5000` | Express server port |
+| `DB_HOST` | `localhost` | MySQL host |
+| `DB_USER` | `root` | MySQL username |
+| `DB_PASSWORD` | _(required)_ | MySQL password |
+| `DB_NAME` | `user_management` | MySQL database name |
 
+---
 
-Known Issues / Notes
+## Notes
 
+- **Credentials in repo:** The `.env` file is currently committed with real database credentials. Add `.env` to `.gitignore` and use environment variables or a secrets manager for any deployment.
+- **`node_modules` committed:** Add `node_modules/` to `.gitignore` and let `npm install` handle dependencies instead.
+- **CORS:** The server only accepts requests from `http://localhost:5173`. Update the origin in `server.js` if deploying the frontend elsewhere.
 
-The .env file with database credentials is committed to the repository. For any deployment beyond local development, move secrets to a proper secrets manager or CI/CD environment variables and add .env to .gitignore.
-The node_modules directory is committed to the repository. It is recommended to add node_modules/ to .gitignore and rely on npm install instead.
-CORS is configured to allow only http://localhost:5173. Update server.js if the frontend is served from a different origin.
+---
 
+## License
 
-
-License
-
-This project is open source and available for educational and personal use.
+Open source — available for educational and personal use.
